@@ -1,0 +1,69 @@
+Received: by mail-wm0-f43.google.com with SMTP id w207so20300773wmw.1
+        for <test@home.joeinn.es>; Sun, 04 Sep 2016 01:31:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:in-reply-to:references:from:date:message-id:subject:to;
+        bh=rhtybekEZFKVSuifljmhbRDTvcaNvOABd+Oyip6uuFY=;
+        b=KRWa1dJ3hWycgGhEKEfhoZATyNJaJp1ECVTBpG75FI98JP9B7IhJ4wL/g6ALvl61WJ
+         R4pf3dUjMinNbO5ARUfJ14VMtAqrOkgOJthTKeOYCJLtM2tpOgF1KEC+xoWwmPwHCTlL
+         mrUf3tzjL+YaGFSpAAlhM6u6TmfzIoq84RnTJJNSWSx33OMAe2UwgVtkyMXfiEMkYE63
+         uGSEv4Pcsq94fKla7kNSiPP54dncC3f2S55AUo1wq4XJDbO66dfei/od6q9xtCEZpIcC
+         MGUPHQitzU2JX6HLCoMvZb6j0tEl5o+s+VtkpvDs3QbrTSLv7YU8gf3XZM2NiGZdVGkS
+         PeLA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20130820;
+        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
+         :message-id:subject:to;
+        bh=rhtybekEZFKVSuifljmhbRDTvcaNvOABd+Oyip6uuFY=;
+        b=FR+MRpi7aNmIJ3zYMTe5Lam9eR0U2iDzEAyXg5TIzM1ofwRimsdaVReaqVFnXWsqVJ
+         IOUN2cTIK2lBhtIgmXc9RRh8xtnPEjM+pjuuqSs/Y6dpfQqk6UhmjhrG/vRPEJ18ME/L
+         tpe6+Xiqnyux9hw8Uf9cEAbzGI9Nlhdan/jp8KUSi+cS7aKjFPy2Ervgt7CA7rrqhk6x
+         67DzirYD2fIej5h3wLsoeYEmSLD2vlrcCT2R4uDCSFtGPJQrCelqAtqYxUR4vQcvKCEy
+         Eqk7BuO9D5JUqNlzmhLaGD4tsrTlYalTw82O5An51EIY6YuBvYmQNQRn1gI7GT5GYJIB
+         CdFQ==
+X-Gm-Message-State: AE9vXwOuyERHhHAV8CzT0gzOZM6xHFSWUURT2nIt11ihWQ1vgdPkT6eRcGzrzIw2Xt0p+H/VglXqbTscuG34ZA==
+X-Received: by 10.194.88.41 with SMTP id bd9mr28705443wjb.75.1472977910727;
+ Sun, 04 Sep 2016 01:31:50 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 10.28.47.66 with HTTP; Sun, 4 Sep 2016 01:31:30 -0700 (PDT)
+In-Reply-To: <CALeo8Bit+SqiawYy+wcjp0Pdye39Y3kx8jUW8tTxFS5MNUcM3w@mail.gmail.com>
+References: <CALeo8BjfuM8PRhOj+eQMkC2QvKoMCR+b-tFL4hsVYSRmjtrW6Q@mail.gmail.com>
+ <CALeo8Bit+SqiawYy+wcjp0Pdye39Y3kx8jUW8tTxFS5MNUcM3w@mail.gmail.com>
+From: Joe Innes <joeinnes@gmail.com>
+Date: Sun, 4 Sep 2016 10:31:30 +0200
+Message-ID: <CALeo8BirsnkYfhkLyWPYycfwAoKr-OovP+edypwMrUQJYyBrqw@mail.gmail.com>
+Subject: Re: Various
+To: test@home.joeinn.es
+Content-Type: multipart/alternative; boundary=047d7bf10a46219071053baa6549
+
+--047d7bf10a46219071053baa6549
+Content-Type: text/plain; charset=UTF-8
+
+This is a normal done
+[ ] This should be a goal
+[] So should this
+[This will actually be a goal too :(
+xthis won't block
+x this should block
+X this should also block
+[X] should be a done
+[x] should also be a done
+
+--047d7bf10a46219071053baa6549
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div class=3D"gmail_default" style=3D"font-family:&#39;tre=
+buchet ms&#39;,sans-serif"><div class=3D"gmail_default" style=3D"font-size:=
+13px">This is a normal done</div><div class=3D"gmail_default" style=3D"font=
+-size:13px">[ ] This should be a goal</div><div class=3D"gmail_default" sty=
+le=3D"font-size:13px">[] So should this</div><div class=3D"gmail_default" s=
+tyle=3D"font-size:13px">[This will actually be a goal too :(</div><div clas=
+s=3D"gmail_default" style=3D"font-size:13px">xthis won&#39;t block</div><di=
+v class=3D"gmail_default" style=3D"font-size:13px">x this should block</div=
+><div class=3D"gmail_default" style=3D"font-size:13px">X this should also b=
+lock</div><div class=3D"gmail_default" style=3D"font-size:13px">[X] should =
+be a done</div><div class=3D"gmail_default" style=3D"font-size:13px">[x] sh=
+ould also be a done</div></div></div>
+
+--047d7bf10a46219071053baa6549--
