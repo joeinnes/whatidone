@@ -28,9 +28,9 @@ block content
               strong #{data.dones.last}
               |  of 
               strong #{data.dones.total}
-              |  posts.
+              |  dones.
           else
-            h4.text-weight-normal Showing #{utils.plural(data.dones.results.length, '* post')}.
+            h4.text-weight-normal Showing #{utils.plural(data.dones.results.length, '* done')}.
           .blog
             each done in data.dones.results
               +done(done)
