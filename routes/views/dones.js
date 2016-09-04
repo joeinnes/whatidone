@@ -6,7 +6,7 @@ exports = module.exports = function (req, res) {
 
   var view = new keystone.View(req, res);
   var locals = res.locals;
-  console.log(req.user._id);
+  console.log(req.param);
   // Init locals
   locals.section = 'dones';
   /* locals.filters = {
@@ -16,10 +16,19 @@ exports = module.exports = function (req, res) {
     dones: []
   };
 
+  var start = moment(end).subtract(5, 'days');
+  var end = moment().endOf('day');
+
+  if (req.param.start && moment(req.param.start, "YYYYMMDD").isValid()) {
+    start = moment(req.param.start, "YYYYMMDD");
+  }
+
+  if (req.param.start && moment(req.param.end, "YYYYMMDD").isValid()) {
+    end = moment(req.param.end, "YYYYMMDD");
+  }
+
   // Load the dones
   view.on('init', function (next) {
-    var end = moment().endOf('day')
-    var start = moment(end).subtract(5, 'days');
     var q = keystone.list('Done')
       .paginate({
         page: req.query.page || 1,

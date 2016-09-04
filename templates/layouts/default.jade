@@ -14,7 +14,9 @@ html
 
 		//- Customise the stylesheet for your site by editing /public/styles/site.less
 		//- All .less files will be automatically compiled and minified in production.
-		link(href="/styles/site.min.css", rel="stylesheet")
+		//- link(href="/styles/site.min.css", rel="stylesheet")
+		link(href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css", rel="stylesheet")
+		link(href="http://fonts.googleapis.com/icon?family=Material+Icons", rel="stylesheet")
 
 		//- This file provides the default styling for the KeystoneJS Content Editor
 		if user && user.canAccessKeystone
@@ -35,33 +37,30 @@ html
 
 	//- HTML BODY
 	body
+		.container
 
 		//- HEADER
-		#header: .container
+		#header
 
 			//- Customise your site's navigation by changing the navLinks Array in ./routes/middleware.js
 			//- ... or completely change this header to suit your design.
 
-			div(role="navigation").navbar.navbar-default
-				.container-fluid
-					.navbar-header
-						button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
-							span.sr-only Toggle navigation
-							span.icon-bar
-							span.icon-bar
-							span.icon-bar
-						a.navbar-brand(href='/') WhatIDone
-					.collapse.navbar-collapse
-						ul.nav.navbar-nav.navbar-left
-							each link in navLinks
-								li(class=(section == link.key ? 'active' : null)): a(href=link.href)= link.label
-						ul.nav.navbar-nav.navbar-right
-							if user
-								if user.canAccessKeystone
-									li: a(href='/keystone') Open Keystone
-								li: a(href='/keystone/signout') Sign Out
-							else
-								li: a(href='/keystone/signin') Sign In
+			nav
+				.nav-wrapper
+					a.brand-logo WhatIDone
+					ul.right
+						each link in navLinks
+							li(class=(section == link.key ? 'active' : ''))
+								a(href=link.href)= link.label
+						if user
+							if user.canAccessKeystone
+								li
+									a(href='/keystone') Open Keystone
+								li
+									a(href='/keystone/signout') Sign Out
+						else
+							li
+								a(href='/keystone/signin') Sign In
 
 		//- BODY
 		#body
@@ -98,6 +97,8 @@ html
 		//- Customise which Bootstrap javascript files are served by including
 		//- them specifically here, instead of bootstrap-3.3.5.min.js
 		script(src='/js/bootstrap/bootstrap-3.3.5.min.js')
+
+		script(src='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js')
 
 		//- The KeystoneJS Content Editor provides support for ks-editable data attributes,
 		//- which generate links to edit content for users who can access Keystone

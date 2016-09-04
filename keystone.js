@@ -65,8 +65,9 @@ mailin.start({
 mailin.on('message', function (connection, data, content) {
   var sender = data.envelopeFrom.address;
   var dones = data.text;
-  User.model.findOne()
-    .where('email', sender)
+  User.model.findOne({
+    email: sender
+  })
     .exec(function (err, user) {
       if (err) {
         console.log(err);

@@ -8,6 +8,7 @@
     "keystone": "^0.3.19",
     "lodash": "^4.13.1",
     "mailin": "^3.0.3",
+    "material-datepicker": "0.0.1",
     "moment": "^2.14.1",
     "semistandard": "^9.0.0"
   },
