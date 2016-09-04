@@ -21,7 +21,7 @@ keystone.init({
   'auto update': true,
   'session': true,
   'auth': true,
-  'user model': 'User',
+  'user model': 'User'
 });
 
 // Load your project's Models
@@ -34,7 +34,7 @@ keystone.set('locals', {
   _: require('lodash'),
   env: keystone.get('env'),
   utils: keystone.utils,
-  editable: keystone.content.editable,
+  editable: keystone.content.editable
 });
 
 // Load your project's Routes
@@ -44,7 +44,7 @@ keystone.set('routes', require('./routes'));
 keystone.set('nav', {
   posts: ['posts', 'post-categories'],
   users: 'users',
-  dones: 'dones',
+  dones: 'dones'
 });
 
 // Start Keystone to connect to your database and initialise the web server
@@ -63,10 +63,10 @@ mailin.start({
 
 /* Access simplesmtp server instance. */
 mailin.on('authorizeUser', function (connection, username, password, done) {
-  if (username == "johnsmith" && password == "mysecret") {
+  if (username === 'johnsmith' && password === 'mysecret') {
     done(null, true);
   } else {
-    done(new Error("Unauthorized!"), false);
+    done(new Error('Unauthorized!'), false);
   }
 });
 
@@ -74,43 +74,79 @@ mailin.on('authorizeUser', function (connection, username, password, done) {
 mailin.on('message', function (connection, data, content) {
   var sender = data.envelopeFrom.address;
   var dones = data.text;
-  dones = dones.split('\n');
-  dones = dones.filter(function (done) {
-    if (done[0] === ">") {
-      return false;
-    }
-    return done.length > 1;
-  });
-  dones.forEach(function (done) {
-    var type = 'done';
-    if (done[0] === "[" && done[1].toLowerCase() !== "x") {
-      type = 'goal';
-      done = done.split("]")[1];
-      if (!done) {
-        return;
+  User.model.findOne()
+    .where('email', sender)
+    .exec(function (err, user) {
+      if (err) {
+        console.log(err);
       }
-    } else if (done[0].toLowerCase() === "x" && done[1] === " ") {
-      type = 'blocker';
-      done.substr(2);
-    }
+      var createdBy = null;
+      if (user) {
+        createdBy = user.id;
+      }
 
-    User.model.findOne()
-      .where('email', sender)
-      .exec(function(err, user) {
-        var createdBy = null;
-        if (user) {
-          createdBy = user.id;
+      dones = dones.split('\n');
+      dones.map(function (done) {
+        return done.trim();
+      });
+
+      dones = dones.filter(function (done) {
+        if (done[0] === '>') {
+          return false;
         }
-        new Done.model({
+        return done.length > 1;
+      });
+
+      dones.forEach(function (done) {
+        var type = 'done';
+        if (done[0] === '[' && done[1].toLowerCase() !== 'x') {
+          type = 'goal';
+          done = done.split(']')[1].trim();
+          if (!done) {
+            return;
+          }
+        } else if (done[0].toLowerCase() === 'x' && done[1] === ' ') {
+          type = 'blocker';
+          done.substr(2).trim();
+        }
+        if (done[0] === '[') {
+          done = done.split(']')[1].trim();
+        }
+
+        if (type === 'done') {
+          Done.model.find()
+            .where('text', done)
+            .exec(function (err, oldDones) {
+              if (err) {
+                console.log(err);
+              }
+              if (oldDones) {
+                oldDones.filter(function (oldDone) {
+                  return !oldDone.completedOn;
+                });
+              }
+
+              if (oldDones.length === 1) {
+                oldDones[0].completedOn = new Date();
+                oldDones[0].save();
+                return;
+              }
+            });
+        }
+
+        Done.model = Done.Model; // Alternatively, use eslint-disable-line on next line
+        new Done.Model({
           text: done,
           creator: sender,
           isComplete: true,
-		      completedOn: new Date(),
+          completedOn: type === 'done' ? new Date() : null,
           doneType: type,
-          createdBy: user,
-      }).save(done);
+          createdBy: createdBy
+        }).save();
+      });
     });
-  });
-  /* Do something useful with the parsed message here.
-   * Use parsed message `data` directly or use raw message `content`. */
+/* Do something useful with the parsed message here.
+ * Use parsed message `data` directly or use raw message `content`. */
 });
+
+// TEST: what happens with unknown sender

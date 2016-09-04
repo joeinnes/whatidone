@@ -7,7 +7,8 @@
     "dotenv": "^2.0.0",
     "keystone": "^0.3.19",
     "lodash": "^4.13.1",
-    "mailin": "^3.0.3"
+    "mailin": "^3.0.3",
+    "semistandard": "^9.0.0"
   },
   "devDependencies": {
     "eslint": "^2.12.0",

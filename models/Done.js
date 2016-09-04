@@ -13,7 +13,7 @@ Done.add({
 	doneType: { type: Types.Select, options: 'done, goal, blocker', default: 'done', required: true, index: true, initial: true },
     createdOn: { type: Types.Datetime, default: Date.now, required: true },
     createdBy: { type: Types.Relationship, ref: 'User' },
-    completedOn: { type: Types.Datetime, default: Date.now },
+    completedOn: { type: Types.Datetime },
 });
 
 
