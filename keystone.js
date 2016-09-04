@@ -107,8 +107,9 @@ mailin.on('message', function (connection, data, content) {
           }
         } else if (done[0].toLowerCase() === 'x' && done[1] === ' ') {
           type = 'blocker';
-          done.substr(2).trim();
+          done = done.substr(2).trim();
         }
+
         if (done[0] === '[') {
           done = done.split(']')[1].trim();
         }
@@ -128,25 +129,30 @@ mailin.on('message', function (connection, data, content) {
 
               if (oldDones.length === 1) {
                 oldDones[0].completedOn = new Date();
+                oldDones[0].doneType = 'done';
                 oldDones[0].save();
-                return;
+              } else {
+                new Done.model({ // eslint-disable-line
+                  text: done,
+                  creator: sender,
+                  isComplete: true,
+                  completedOn: type === 'done' ? new Date() : null,
+                  doneType: type,
+                  createdBy: createdBy
+                }).save();
               }
             });
+        } else {
+          new Done.model({ // eslint-disable-line
+            text: done,
+            creator: sender,
+            isComplete: true,
+            completedOn: type === 'done' ? new Date() : null,
+            doneType: type,
+            createdBy: createdBy
+          }).save();
         }
-
-        Done.model = Done.Model; // Alternatively, use eslint-disable-line on next line
-        new Done.Model({
-          text: done,
-          creator: sender,
-          isComplete: true,
-          completedOn: type === 'done' ? new Date() : null,
-          doneType: type,
-          createdBy: createdBy
-        }).save();
       });
     });
-/* Do something useful with the parsed message here.
- * Use parsed message `data` directly or use raw message `content`. */
 });
-
-// TEST: what happens with unknown sender
+// TODO: what happens with unknown sender?
