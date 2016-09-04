@@ -61,15 +61,6 @@ mailin.start({
   disableWebhook: true // Disable the webhook posting.
 });
 
-/* Access simplesmtp server instance. */
-mailin.on('authorizeUser', function (connection, username, password, done) {
-  if (username === 'johnsmith' && password === 'mysecret') {
-    done(null, true);
-  } else {
-    done(new Error('Unauthorized!'), false);
-  }
-});
-
 /* Event emitted after a message was received and parsed. */
 mailin.on('message', function (connection, data, content) {
   var sender = data.envelopeFrom.address;
@@ -98,15 +89,15 @@ mailin.on('message', function (connection, data, content) {
       });
 
       dones.forEach(function (done) {
-        var type = 'done';
+        var type = '1';
         if (done[0] === '[' && done[1].toLowerCase() !== 'x') {
-          type = 'goal';
+          type = '2';
           done = done.split(']')[1].trim();
           if (!done) {
             return;
           }
         } else if (done[0].toLowerCase() === 'x' && done[1] === ' ') {
-          type = 'blocker';
+          type = '3';
           done = done.substr(2).trim();
         }
 
@@ -129,14 +120,14 @@ mailin.on('message', function (connection, data, content) {
 
               if (oldDones.length === 1) {
                 oldDones[0].completedOn = new Date();
-                oldDones[0].doneType = 'done';
+                oldDones[0].doneType = '1';
                 oldDones[0].save();
               } else {
                 new Done.model({ // eslint-disable-line
                   text: done,
                   creator: sender,
                   isComplete: true,
-                  completedOn: type === 'done' ? new Date() : null,
+                  completedOn: type === '1' ? new Date() : null,
                   doneType: type,
                   createdBy: createdBy
                 }).save();
@@ -147,7 +138,7 @@ mailin.on('message', function (connection, data, content) {
             text: done,
             creator: sender,
             isComplete: true,
-            completedOn: type === 'done' ? new Date() : null,
+            completedOn: type === '1' ? new Date() : null,
             doneType: type,
             createdBy: createdBy
           }).save();

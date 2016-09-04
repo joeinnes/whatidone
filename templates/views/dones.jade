@@ -1,0 +1,50 @@
+extends ../layouts/default
+
+mixin done(done)
+  .post(data-ks-editable=editable(user, { list: 'Done', id: done.id }))
+    if done.doneType === "1"
+            h4 Done #{done.text}
+        if done.doneType === "2"
+            h4 Goal #{done.text}
+        if done.doneType === "3"
+            h4 Blocker #{done.text}
+    p.text-muted Completed 
+      if done.completedOn
+        | on #{done._.completedOn.format('MMMM Do, YYYY')} 
+      if done.createdBy
+        | by #{done.createdBy.name.first} #{done.createdBy.name.last}
+block intro
+  .container
+    h1= 'Dones'
+
+block content
+  .container: .row
+    .col-sm-8.col-md-9
+        if data.dones.results.length
+          if data.dones.totalPages > 1
+            h4.text-weight-normal Showing 
+              strong #{data.dones.first}
+              |  to 
+              strong #{data.dones.last}
+              |  of 
+              strong #{data.dones.total}
+              |  posts.
+          else
+            h4.text-weight-normal Showing #{utils.plural(data.dones.results.length, '* post')}.
+          .blog
+            each done in data.dones.results
+              +done(done)
+          
+          if data.dones.totalPages > 1
+            ul.pagination
+              if data.dones.previous
+                li: a(href='?page=' + data.dones.previous): span.glyphicon.glyphicon-chevron-left
+              else
+                li.disabled: a(href='?page=' + 1): span.glyphicon.glyphicon-chevron-left
+              each p, i in data.dones.pages
+                li(class=data.dones.currentPage == p ? 'active' : null)
+                  a(href='?page=' + (p == '...' ? (i ? data.dones.totalPages : 1) : p ))= p
+              if data.dones.next
+                li: a(href='?page=' + data.dones.next): span.glyphicon.glyphicon-chevron-right
+              else
+                li.disabled: a(href='?page=' + data.dones.totalPages): span.entypo.glyphicon.glyphicon-chevron-right
