@@ -1,24 +1,25 @@
 extends ../layouts/default
 
 mixin done(done)
-  .post(data-ks-editable=editable(user, { list: 'Done', id: done.id }))
-    if done.doneType === "1"
-            h4
-              i.material-icons done
-              span &nbsp;#{done.text}
-        if done.doneType === "2"
-            h4 
-              i.material-icons today
-              span &nbsp;#{done.text}
-        if done.doneType === "3"
-            h4 
-              i.material-icons error_outline 
-              span &nbsp;#{done.text}
-    p.text-muted
+  .item(data-ks-editable=editable(user, { list: 'Done', id: done.id }))
+    li
+      if done.doneType === "1"
+        i.done.fa.fa-check-square-o(aria-hidden='true' id=done.id)
+        span &nbsp;#{done.text}
+        br
+      if done.doneType === "2"
+        i.goal.fa.fa-square-o(aria-hidden='true' id=done.id)
+        span &nbsp;#{done.text}
+        br
+      if done.doneType === "3"
+        i.blocker.fa.fa-ban(aria-hidden='true' id=done.id)
+        span &nbsp;#{done.text}
+        br
       if done.completedOn
-        | Completed on #{done._.completedOn.format('MMMM Do, YYYY')}
+        small Completed on #{done._.completedOn.format('MMMM Do, YYYY')}
       else
-        | Created on #{done._.createdOn.format('MMMM Do, YYYY')}
+        small Created on #{done._.createdOn.format('MMMM Do, YYYY')}
+
 block intro
   .container
     h1= 'Dones'
@@ -26,34 +27,39 @@ block intro
 block content
   .container
     .row
-      .col.s3
-        a.c-btn.c-datepicker-btn
-          p TODO: Date selection
-      .col.s9
-        .done
+      .col-xs-4.col-md-3
+        h4 Choose Dates to Display
+          p
+            input#daterange.form-control(name='daterange')
+          p
+            button#go-to-dates.btn.btn-success(type='button') Go!
+      .col-xs-14.col-md-9
+        h2 Dones
+        ul.list-unstyled
           each done in data.dones.results
             +done(done)
-          if data.dones.totalPages > 1
-            ul.pagination
-              if data.dones.previous
-                li: a(href='?page=' + data.dones.previous): span.glyphicon.glyphicon-chevron-left
-              else
-                li.disabled: a(href='?page=' + 1): span.glyphicon.glyphicon-chevron-left
-              each p, i in data.dones.pages
-                li(class=data.dones.currentPage == p ? 'active' : null)
-                  a(href='?page=' + (p == '...' ? (i ? data.dones.totalPages : 1) : p ))= p
-              if data.dones.next
-                li: a(href='?page=' + data.dones.next): span.glyphicon.glyphicon-chevron-right
-              else
-                li.disabled: a(href='?page=' + data.dones.totalPages): span.entypo.glyphicon.glyphicon-chevron-right
-          if data.dones.results.length
-            if data.dones.totalPages > 1
-              small Showing 
-                strong #{data.dones.first}
-                |  to 
-                strong #{data.dones.last}
-                |  of 
-                strong #{data.dones.total}
-                |  dones.
+            
+      if data.dones.totalPages > 1
+        ul.pagination
+            if data.dones.previous
+              li: a(href='?page=' + data.dones.previous): span.glyphicon.glyphicon-chevron-left
             else
-              small Showing #{utils.plural(data.dones.results.length, '* done')}.
+              li.disabled: a(href='?page=' + 1): span.glyphicon.glyphicon-chevron-left
+            each p, i in data.dones.pages
+              li(class=data.dones.currentPage == p ? 'active' : null)
+                a(href='?page=' + (p == '...' ? (i ? data.dones.totalPages : 1) : p ))= p
+            if data.dones.next
+              li: a(href='?page=' + data.dones.next): span.glyphicon.glyphicon-chevron-right
+            else
+              li.disabled: a(href='?page=' + data.dones.totalPages): span.entypo.glyphicon.glyphicon-chevron-right
+        if data.dones.results.length
+          if data.dones.totalPages > 1
+            small Showing 
+              strong #{data.dones.first}
+              |  to 
+              strong #{data.dones.last}
+              |  of 
+              strong #{data.dones.total}
+              |  dones.
+          else
+            small Showing #{utils.plural(data.dones.results.length, '* done')}.

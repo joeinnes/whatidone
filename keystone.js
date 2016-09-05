@@ -57,7 +57,7 @@ var Done = keystone.list('Done');
 var User = keystone.list('User');
 
 mailin.start({
-  port: 8001,
+  port: 25,
   disableWebhook: true // Disable the webhook posting.
 });
 

@@ -6,25 +6,27 @@ exports = module.exports = function (req, res) {
 
   var view = new keystone.View(req, res);
   var locals = res.locals;
-  console.log(req.param);
+	var csrfTokenKey = keystone.security.csrf.TOKEN_KEY;
+  var csrfTokenValue = keystone.security.csrf.getToken(req, res);
   // Init locals
   locals.section = 'dones';
-  /* locals.filters = {
-    date: req.params.category,
-  }; */
   locals.data = {
     dones: []
   };
 
+	var end = moment().endOf('day');
+	var endAsDate = end.toDate();
   var start = moment(end).subtract(5, 'days');
-  var end = moment().endOf('day');
+	var startAsDate = start.toDate(); 
 
-  if (req.param.start && moment(req.param.start, "YYYYMMDD").isValid()) {
-    start = moment(req.param.start, "YYYYMMDD");
+  if (req.params.start && moment(req.params.start, "YYYYMMDD").isValid()) {
+    start = moment(req.params.start, "YYYYMMDD").startOf('day');
+		startAsDate = start.toDate(); 
   }
 
-  if (req.param.start && moment(req.param.end, "YYYYMMDD").isValid()) {
-    end = moment(req.param.end, "YYYYMMDD");
+  if (req.params.start && moment(req.params.end, "YYYYMMDD").isValid()) {
+    end = moment(req.params.end, "YYYYMMDD").endOf('day');
+		endAsDate = end.toDate();
   }
 
   // Load the dones
@@ -40,23 +42,38 @@ exports = module.exports = function (req, res) {
       })
       .populate('createdBy')
       .sort('-doneType -completedOn');
-
-    q.find({
-      $and: [{
-        createdBy: {
-          _id: req.user._id
-        }
-      }, {
-        $or: [{
-          completedOn: {
-            $gte: start,
-            $lt: end
-          }
-        }, {
-          completedOn: null
-        }]
-      }]
-    });
+		
+    if (moment().format("YYYYMMDD") === req.params.end) {
+			q.find({
+      	$and: [{
+       		createdBy: {
+         		_id: req.user._id
+       		}
+      	}, {
+       		$or: [{
+         		completedOn: {
+           		$gte: startAsDate,
+           		$lt: endAsDate
+         		}
+       		}, {
+         		completedOn: null
+       		}]
+      	}]
+    	});
+		} else {
+			q.find({
+				$and: [{
+					createdBy: {
+         		_id: req.user._id
+       		}
+      	}, {
+					completedOn: {
+          	$gte: startAsDate,
+          	$lt: endAsDate
+         	}
+				}]
+			});
+		}
 
     q.exec(function (err, results) {
       locals.data.dones = results;
@@ -65,5 +82,9 @@ exports = module.exports = function (req, res) {
   });
 
   // Render the view
-  view.render('dones');
+  view.render('dones', {
+    csrfTokenKey: csrfTokenKey, 
+    csrfTokenValue: csrfTokenValue,
+		logged_in_user: req.user._id
+  });
 };
