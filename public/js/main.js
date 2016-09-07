@@ -138,7 +138,7 @@ function getUrlParameter(sParam) {
     }
 }
 
-$('.delete').click(function() {
+/*$('.delete').click(function() {
 	var id = this.parentNode.parentNode.id;
 	$.ajax({
     url: '/keystone/api/dones/delete/' + id,
@@ -147,7 +147,7 @@ $('.delete').click(function() {
         console.log('result');
     }
 	});
-});
+});*/
 
 // Find all editable content.
 $('[contenteditable=true]')
@@ -179,12 +179,16 @@ $('[contenteditable=true]')
 				}
 				
 				$.post('/keystone/api/dones/create', payload, function (response) { 
+					var newDone = $('#new');
+					var copyOfNewDone = $('#new').clone(true, true);
+					newDone.attr('id', response.id);
 					if (completed) {
-						$('#new').append('<small>Completed on ' + moment(response.completedOn).format('MMMM Do, YYYY') + "</small>");
+						newDone.append('<small>Completed on ' + moment(response.completedOn).format('MMMM Do, YYYY') + "</small>");
 					} else {
-						$('#new').append('<small>Created on ' + moment(response.createdOn).format('MMMM Do, YYYY') + "</small>");
+						newDone.append('<small>Created on ' + moment(response.createdOn).format('MMMM Do, YYYY') + "</small>");
 					}
-					$('#new').attr('id', response.id);
+					newDone.after(copyOfNewDone);
+					copyOfNewDone.children('span[contenteditable=true]').html('Add new done');
 				});
 			} else {
 	      $.post('/keystone/api/dones/' + id, { 
@@ -203,3 +207,12 @@ $('[contenteditable=true]')
 		} 
 		return true;
 	});
+
+$('.delete').click(function() {
+	var id = this.parentNode.parentNode.id;
+	console.log(id);
+	$.post('/keystone/api/dones/' + id + '/delete', function(result) {
+        console.log(result);
+    });
+	$(this.parentNode.parentNode).remove();
+});
