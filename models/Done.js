@@ -9,7 +9,6 @@ var Done = new keystone.List('Done');
 
 Done.add({
   text: { type: String, required: true, index: true, initial: true },
-  creator: { type: Types.Email, required: true, index: true, initial: true },
   doneType: { type: Types.Select, options: '1, 2, 3', default: '1', required: true, index: true, initial: true },
   createdOn: { type: Types.Datetime, default: Date.now, required: true },
   createdBy: { type: Types.Relationship, ref: 'User' },

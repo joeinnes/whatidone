@@ -1,0 +1,16 @@
+span[contenteditable=true] {
+  border-bottom: 0.5px dashed #100100;
+}
+
+span[contenteditable=true]:focus {
+  border-bottom: 0.5px solid #441111;
+	outline: 0px
+}
+
+.item {
+	margin-bottom: 10px;
+}
+
+.item#new {
+	margin-top: 10px;
+}

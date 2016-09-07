@@ -18,8 +18,10 @@ html
     //- All .less files will be automatically compiled and minified in production.
     //- link(href="/styles/site.min.css", rel="stylesheet")
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u', crossorigin='anonymous')
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/united/bootstrap.min.css')
     link(rel='stylesheet', href='https://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css')
     link(rel='stylesheet', href='/styles/iconate/iconate.min.css')
+    link(rel='stylesheet', href='/styles/custom.css')
 
     //- This file provides the default styling for the KeystoneJS Content Editor
     if user && user.canAccessKeystone
@@ -59,14 +61,8 @@ html
           a.navbar-brand(href='#') WhatIDone
         #bs-example-navbar-collapse-1.collapse.navbar-collapse
           ul.nav.navbar-nav
-            li
-              a(href='#') Home
-            li.active
-              a(href='#')
-                | Dones 
-                span.sr-only (current)
-            li
-              a(href='#') Blog
+            each link in navLinks
+              li(class=(section == link.key ? 'active' : null)): a(href=link.href)= link.label
           ul.nav.navbar-nav.navbar-right
             if user
               if user.canAccessKeystone
@@ -74,9 +70,9 @@ html
                   a(href='/keystone') Open Keystone
                  li
                   a(href='/keystone/signout') Sign Out
-              else
-                li
-                  a(href='/keystone/signin') Sign In
+            else
+              li
+                a(href='/keystone/signin') Sign In
 
     //- BODY
     #body

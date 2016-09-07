@@ -2,89 +2,83 @@ var keystone = require('keystone');
 var async = require('async');
 var moment = require('moment');
 
-exports = module.exports = function (req, res) {
-
-  var view = new keystone.View(req, res);
-  var locals = res.locals;
+exports = module.exports = function(req, res) {
+	var view = new keystone.View(req, res);
+	var locals = res.locals
+	locals.section = 'dones';
+	locals.data = {
+		dones: []
+	};
+	if (!req.user) {
+		view.render('dones');
+		return;
+	}
 	var csrfTokenKey = keystone.security.csrf.TOKEN_KEY;
-  var csrfTokenValue = keystone.security.csrf.getToken(req, res);
-  // Init locals
-  locals.section = 'dones';
-  locals.data = {
-    dones: []
-  };
+	var csrfTokenValue = keystone.security.csrf.getToken(req, res);
 
-	var end = moment().endOf('day');
-	var endAsDate = end.toDate();
-  var start = moment(end).subtract(5, 'days');
-	var startAsDate = start.toDate(); 
+	var end = req.query.end ? moment(req.query.end, "YYYYMMDD").endOf('day') : moment().endOf('day');
+	var start = req.query.start ? moment(req.query.end, "YYYYMMDD").startOf('day') : moment(end).subtract(5, 'days').startOf('day');
+	var endDate = end.toDate();
+	var startDate = start.toDate();
 
-  if (req.params.start && moment(req.params.start, "YYYYMMDD").isValid()) {
-    start = moment(req.params.start, "YYYYMMDD").startOf('day');
-		startAsDate = start.toDate(); 
-  }
+	// Load the dones
+	view.on('init', function(next) {
+		var q = keystone.list('Done')
+			.paginate({
+				page: req.query.page || 1,
+				perPage: 10,
+				maxPages: 10
+					/* filters: {
+					  'createdBy.id': req.user._id
+					}*/
+			})
+			.populate('createdBy')
+			.sort('-doneType -completedOn');
 
-  if (req.params.start && moment(req.params.end, "YYYYMMDD").isValid()) {
-    end = moment(req.params.end, "YYYYMMDD").endOf('day');
-		endAsDate = end.toDate();
-  }
-
-  // Load the dones
-  view.on('init', function (next) {
-    var q = keystone.list('Done')
-      .paginate({
-        page: req.query.page || 1,
-        perPage: 10,
-        maxPages: 10
-        /* filters: {
-          'createdBy.id': req.user._id
-        }*/
-      })
-      .populate('createdBy')
-      .sort('-doneType -completedOn');
-		
-    if (moment().format("YYYYMMDD") === req.params.end) {
+		if (moment().format("YYYYMMDD") === end.format("YYYYMMDD")) {
 			q.find({
-      	$and: [{
-       		createdBy: {
-         		_id: req.user._id
-       		}
-      	}, {
-       		$or: [{
-         		completedOn: {
-           		$gte: startAsDate,
-           		$lt: endAsDate
-         		}
-       		}, {
-         		completedOn: null
-       		}]
-      	}]
-    	});
+				$and: [{
+					createdBy: {
+						_id: req.user._id
+					}
+				}, {
+					$or: [{
+						completedOn: {
+							$gte: startDate,
+							$lte: endDate
+						}
+					}, {
+						completedOn: null
+					}]
+				}]
+			});
 		} else {
 			q.find({
 				$and: [{
 					createdBy: {
-         		_id: req.user._id
-       		}
-      	}, {
+						_id: req.user._id
+					}
+				}, {
 					completedOn: {
-          	$gte: startAsDate,
-          	$lt: endAsDate
-         	}
+						$gte: startDate,
+						$lte: endDate
+					}
 				}]
 			});
 		}
 
-    q.exec(function (err, results) {
-      locals.data.dones = results;
-      next(err);
-    });
-  });
+		q.exec(function(err, results) {
+			locals.data.dones = results;
+			next(err);
+		});
+	});
 
-  // Render the view
-  view.render('dones', {
-    csrfTokenKey: csrfTokenKey, 
-    csrfTokenValue: csrfTokenValue,
-		logged_in_user: req.user._id
-  });
+	// Render the view
+	view.render('dones', {
+		csrfTokenKey: csrfTokenKey,
+		csrfTokenValue: csrfTokenValue,
+		logged_in_user: req.user._id,
+		start: start.format("DD/MM/YYYY"),
+		end: end.format("DD/MM/YYYY")
+	});
 };

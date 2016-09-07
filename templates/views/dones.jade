@@ -1,24 +1,29 @@
 extends ../layouts/default
 
 mixin done(done)
-  .item(data-ks-editable=editable(user, { list: 'Done', id: done.id }))
-    li
+    //- (data-ks-editable=editable(user, { list: 'Done', id: done.id }) id=done.id)
+    li.item(id=done.id)
       if done.doneType === "1"
-        i.done.fa.fa-check-square-o(aria-hidden='true' id=done.id)
-        span &nbsp;#{done.text}
+        i.done.fa.fa-check-square-o(aria-hidden='true')
+        span &nbsp;
+        span(contenteditable="true") #{done.text}
         br
       if done.doneType === "2"
-        i.goal.fa.fa-square-o(aria-hidden='true' id=done.id)
-        span &nbsp;#{done.text}
+        i.goal.fa.fa-square-o(aria-hidden='true')
+        span &nbsp;
+        span #{done.text}
         br
       if done.doneType === "3"
-        i.blocker.fa.fa-ban(aria-hidden='true' id=done.id)
-        span &nbsp;#{done.text}
+        i.blocker.fa.fa-ban(aria-hidden='true')
+        span &nbsp;
+        span #{done.text}
         br
       if done.completedOn
-        small Completed on #{done._.completedOn.format('MMMM Do, YYYY')}
+        small Completed on #{done._.completedOn.format('MMMM Do, YYYY')} - 
+          span(class="delete") Delete
       else
-        small Created on #{done._.createdOn.format('MMMM Do, YYYY')}
+        small Created on #{done._.createdOn.format('MMMM Do, YYYY')} - 
+          span(class="delete") Delete
 
 block intro
   .container
@@ -35,31 +40,45 @@ block content
             button#go-to-dates.btn.btn-success(type='button') Go!
       .col-xs-14.col-md-9
         h2 Dones
-        ul.list-unstyled
-          each done in data.dones.results
-            +done(done)
-            
-      if data.dones.totalPages > 1
-        ul.pagination
-            if data.dones.previous
-              li: a(href='?page=' + data.dones.previous): span.glyphicon.glyphicon-chevron-left
+        if data.dones.results && data.dones.results.length
+          ul.list-unstyled
+            each done in data.dones.results
+              +done(done)
             else
-              li.disabled: a(href='?page=' + 1): span.glyphicon.glyphicon-chevron-left
-            each p, i in data.dones.pages
-              li(class=data.dones.currentPage == p ? 'active' : null)
-                a(href='?page=' + (p == '...' ? (i ? data.dones.totalPages : 1) : p ))= p
-            if data.dones.next
-              li: a(href='?page=' + data.dones.next): span.glyphicon.glyphicon-chevron-right
-            else
-              li.disabled: a(href='?page=' + data.dones.totalPages): span.entypo.glyphicon.glyphicon-chevron-right
-        if data.dones.results.length
+              p No dones to display.
+              
+            if user
+              li.item(id="new")
+                i.done.fa.fa-check-square-o(aria-hidden='true')
+                span &nbsp;
+                span(contenteditable="true") Add new done
+                br
+                
           if data.dones.totalPages > 1
-            small Showing 
-              strong #{data.dones.first}
-              |  to 
-              strong #{data.dones.last}
-              |  of 
-              strong #{data.dones.total}
-              |  dones.
-          else
-            small Showing #{utils.plural(data.dones.results.length, '* done')}.
+            ul.pagination
+              if data.dones.previous
+                li: a(href='?page=' + data.dones.previous): span.glyphicon.glyphicon-chevron-left
+              else
+                li.disabled: a(href='?page=' + 1): span.glyphicon.glyphicon-chevron-left
+              each p, i in data.dones.pages
+                li(class=data.dones.currentPage == p ? 'active' : null)
+                  a(href='?page=' + (p == '...' ? (i ? data.dones.totalPages : 1) : p ))= p
+              if data.dones.next
+                li: a(href='?page=' + data.dones.next): span.glyphicon.glyphicon-chevron-right
+              else
+                li.disabled: a(href='?page=' + data.dones.totalPages): span.entypo.glyphicon.glyphicon-chevron-right
+            if data.dones.results.length
+              if data.dones.totalPages > 1
+                small Showing 
+                  strong #{data.dones.first}
+                  |  to 
+                  strong #{data.dones.last}
+                  |  of 
+                  strong #{data.dones.total}
+                  |  dones.
+              else
+                small Showing #{utils.plural(data.dones.results.length, '* done')}.
+        else
+          p No dones to display
+          if !user
+            p Perhaps you should try signing in?

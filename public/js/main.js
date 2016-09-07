@@ -8,17 +8,17 @@ var userId = $('meta[name="user"]').attr('content');
 
 var iconElements = document.getElementsByClassName('goal');
 for (var i = 0; i < iconElements.length; i++) {
-  iconElements[i].addEventListener('click', goalToDone);
+	  iconElements[i].addEventListener('click', goalToDone);
 }
 
 iconElements = document.getElementsByClassName('done');
 for (var i = 0; i < iconElements.length; i++) {
-  iconElements[i].addEventListener('click', doneToBlocker);
+  	iconElements[i].addEventListener('click', doneToBlocker);
 }
 
 iconElements = document.getElementsByClassName('blocker');
 for (var i = 0; i < iconElements.length; i++) {
-  iconElements[i].addEventListener('click', blockerToGoal);
+	  iconElements[i].addEventListener('click', blockerToGoal);
 }
 
 function goalToDone() {
@@ -28,7 +28,9 @@ function goalToDone() {
     animation: 'tada'
   };
 	var now = moment();
-	$.post('/keystone/api/dones/' + this.id, { "doneType" : 1, createdBy: userId, completedOn: now.format('YYYY-MM-DD') }, function (response) { console.log(response)});
+	if (this.parentNode.id !== "new") {
+		$.post('/keystone/api/dones/' + this.parentNode.id, { "doneType" : 1, createdBy: userId, completedOn: now.format('YYYY-MM-DD') }, function (response) { console.log(response)});
+	}
   iconate(this, options);
   this.classList.remove('goal');
   this.classList.add('done');
@@ -42,7 +44,9 @@ function doneToBlocker() {
     to: 'fa-ban',
     animation: 'tada'
   };
-	$.post('/keystone/api/dones/' + this.id, { "doneType" : 3, createdBy: userId, completedOn: null }, function (response) { console.log(response)});
+	if (this.parentNode.id !== "new") {
+		$.post('/keystone/api/dones/' + this.parentNode.id, { "doneType" : 3, createdBy: userId, completedOn: null }, function (response) { console.log(response)});
+	}
   iconate(this, options);
   this.classList.remove('done');
   this.classList.add('blocker');
@@ -56,13 +60,18 @@ function blockerToGoal() {
     to: 'fa-square-o',
     animation: 'tada'
   };
-	$.post('/keystone/api/dones/' + this.id, { "doneType" : 2, createdBy: userId, completedOn: null }, function (response) { console.log(response)});
+	if (this.parentNode.id !== "new") {
+		$.post('/keystone/api/dones/' + this.parentNode.id, { "doneType" : 2, createdBy: userId, completedOn: null }, function (response) { console.log(response)});
+	}
   iconate(this, options);
   this.classList.remove('blocker');
   this.classList.add('goal');
   this.removeEventListener('click', blockerToGoal)
   this.addEventListener('click', goalToDone)
 }
+
+var startDate = getUrlParameter('start') || moment();
+var endDate = getUrlParameter('end') || moment();
 
 $('#daterange').daterangepicker({
     "ranges": {
@@ -92,8 +101,8 @@ $('#daterange').daterangepicker({
         ]
     },
     "alwaysShowCalendars": true,
-    "startDate": moment().startOf('day'),
-    "endDate": moment().endOf('day'),
+    "startDate": moment(startDate, "YYYYMMDD").startOf('day'),
+    "endDate": moment(endDate, "YYYYMMDD").endOf('day'),
     "opens": "center",
     "autoApply": true,
     "maxDate": moment().endOf('day'),
@@ -111,5 +120,86 @@ $('#go-to-dates').on('click', function() {
   var endDate = datePicker.split(" ")[2];
   startDate = "" + startDate.split('/')[2] + startDate.split('/')[1] + startDate.split('/')[0]
   endDate = "" + endDate.split('/')[2] + endDate.split('/')[1] + endDate.split('/')[0]
-  window.location.assign("/dones/" + startDate + "/" + endDate);
+  window.location.assign("/dones?start=" + startDate + "&end=" + endDate);
 });
+
+function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+    }
+}
+
+$('.delete').click(function() {
+	var id = this.parentNode.parentNode.id;
+	$.ajax({
+    url: '/keystone/api/dones/delete/' + id,
+    type: 'DELETE',
+    success: function(result) {
+        console.log('result');
+    }
+	});
+});
+
+// Find all editable content.
+$('[contenteditable=true]')
+  .focus(function() {
+    $(this).data("initialText", $(this).html());
+  })
+  .blur(function() {
+    if ($(this).data("initialText") !== $(this).html()) {
+			var id = $(this).parent().attr("id");
+			if (id === "new") {
+				var type = 0;
+				if ($(this).parent().children().eq(0).hasClass('done')) {
+					type = 1;
+				} else if ($(this).parent().children().eq(0).hasClass('goal')) {
+					type = 2;
+				} else {
+					type = 3;
+				}
+				
+				var completed = type === 1 ? moment().format('YYYY-MM-DD') : null;
+				var payload = {};
+				payload.text = $(this).html();
+				payload.createdBy = userId;
+				if (completed) {
+					payload.completedOn = completed;
+				}
+				if (type > 0) {
+					payload.doneType = type;
+				}
+				
+				$.post('/keystone/api/dones/create', payload, function (response) { 
+					if (completed) {
+						$('#new').append('<small>Completed on ' + moment(response.completedOn).format('MMMM Do, YYYY') + "</small>");
+					} else {
+						$('#new').append('<small>Created on ' + moment(response.createdOn).format('MMMM Do, YYYY') + "</small>");
+					}
+					$('#new').attr('id', response.id);
+				});
+			} else {
+	      $.post('/keystone/api/dones/' + id, { 
+					"text" : $(this).html(), 
+					createdBy: userId
+				}, function (response) { 
+					console.log(response)
+				});
+			}
+		}
+	})
+  .keypress(function(e) { 
+		if (e.which === 13) {
+			this.blur();
+			return false;
+		} 
+		return true;
+	});
