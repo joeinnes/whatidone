@@ -151,12 +151,22 @@ function getUrlParameter(sParam) {
 
 // Find all editable content.
 $('[contenteditable=true]')
-  .focus(function() {
-    $(this).data("initialText", $(this).html());
+  .focus(function(e) {
+		if ($(this).parent().attr("id") === "new") {
+			window.setTimeout(function() {
+      	$(e.target).text("")
+	    }, 100);
+		}
+    $(this).data("initialText", $(this).text());
   })
   .blur(function() {
-    if ($(this).data("initialText") !== $(this).html()) {
-			var id = $(this).parent().attr("id");
+		var id = $(this).parent().attr("id");
+		if (id === "new" && $(this).text() === '' ) {
+			$(this).css('min-width', '');
+			$(this).text('Add new done');
+			return;
+		}
+    if ($(this).data("initialText") !== $(this).text()) {
 			if (id === "new") {
 				var type = 0;
 				if ($(this).parent().children().eq(0).hasClass('done')) {
@@ -169,7 +179,7 @@ $('[contenteditable=true]')
 				
 				var completed = type === 1 ? moment().format('YYYY-MM-DD') : null;
 				var payload = {};
-				payload.text = $(this).html();
+				payload.text = $(this).text();
 				payload.createdBy = userId;
 				if (completed) {
 					payload.completedOn = completed;
@@ -183,16 +193,17 @@ $('[contenteditable=true]')
 					var copyOfNewDone = $('#new').clone(true, true);
 					newDone.attr('id', response.id);
 					if (completed) {
-						newDone.append('<small>Completed on ' + moment(response.completedOn).format('MMMM Do, YYYY') + "</small>");
+						newDone.append('<small>Completed on ' + moment(response.completedOn).format('MMMM Do, YYYY') + ' - <span class="delete">Delete</span></small>');
 					} else {
-						newDone.append('<small>Created on ' + moment(response.createdOn).format('MMMM Do, YYYY') + "</small>");
+						newDone.append('<small>Created on ' + moment(response.createdOn).format('MMMM Do, YYYY') + ' - <span class="delete">Delete</span></small>');
 					}
+					$('.delete').click(deleteItem);
 					newDone.after(copyOfNewDone);
 					copyOfNewDone.children('span[contenteditable=true]').html('Add new done');
 				});
 			} else {
 	      $.post('/keystone/api/dones/' + id, { 
-					"text" : $(this).html(), 
+					"text" : $(this).text(), 
 					createdBy: userId
 				}, function (response) { 
 					console.log(response)
@@ -208,11 +219,13 @@ $('[contenteditable=true]')
 		return true;
 	});
 
-$('.delete').click(function() {
-	var id = this.parentNode.parentNode.id;
+$('.delete').click(deleteItem);
+
+function deleteItem(e) {
+	var id = e.target.parentNode.parentNode.id;
 	console.log(id);
 	$.post('/keystone/api/dones/' + id + '/delete', function(result) {
         console.log(result);
     });
-	$(this.parentNode.parentNode).remove();
-});
+	$(e.target.parentNode.parentNode).remove();
+}

@@ -57,16 +57,16 @@ block content
           if data.dones.totalPages > 1
             ul.pagination
               if data.dones.previous
-                li: a(href='?page=' + data.dones.previous): span.glyphicon.glyphicon-chevron-left
+                li: a(href='?start=' + startYMD + '&end=' + endYMD + '&page=' + data.dones.previous): span.glyphicon.glyphicon-chevron-left
               else
-                li.disabled: a(href='?page=' + 1): span.glyphicon.glyphicon-chevron-left
+                li.disabled: a(href='?start=' + startYMD + '&end=' + endYMD + '&page=' + 1): span.glyphicon.glyphicon-chevron-left
               each p, i in data.dones.pages
                 li(class=data.dones.currentPage == p ? 'active' : null)
-                  a(href='?page=' + (p == '...' ? (i ? data.dones.totalPages : 1) : p ))= p
+                  a(href='?start=' + startYMD + '&end=' + endYMD + '&page=' + (p == '...' ? (i ? data.dones.totalPages : 1) : p ))= p
               if data.dones.next
-                li: a(href='?page=' + data.dones.next): span.glyphicon.glyphicon-chevron-right
+                li: a(href='?start=' + startYMD + '&end=' + endYMD + '&page=' + data.dones.next): span.glyphicon.glyphicon-chevron-right
               else
-                li.disabled: a(href='?page=' + data.dones.totalPages): span.entypo.glyphicon.glyphicon-chevron-right
+                li.disabled: a(href='?start=' + startYMD + '&end=' + endYMD + '&page=' + data.dones.totalPages): span.glyphicon.glyphicon-chevron-right
         else
           p No dones to display
           if !user

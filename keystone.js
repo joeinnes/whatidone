@@ -3,7 +3,8 @@
 require('dotenv').config();
 var mailin = require('mailin');
 var keystone = require('keystone');
-
+var Email = require('keystone-email');
+var moment = require('moment');
 // Initialise Keystone with your project's configuration.
 // See http://keystonejs.com/guide/config for available options
 // and documentation.
@@ -86,6 +87,12 @@ mailin.on('message', function (connection, data, content) {
         if (done[0] === '>') {
           return false;
         }
+				
+				// Filter out first line of replies (On xxx of xxx, xxx, xxx wrote:)
+				// Not good for different languages.
+				if (done.substr(0,2) == "On" && done.substr(done.length-6, 6) === "wrote:") {
+					return false;
+				}
         return done.length > 1;
       });
 
@@ -148,3 +155,44 @@ mailin.on('message', function (connection, data, content) {
     });
 });
 // TODO: what happens with unknown sender?
+
+var schedule = require('node-schedule');
+ 
+var askForDones = schedule.scheduleJob('* 17 45 * *', sendMails);
+
+function sendMails() {
+	User.model.find()
+  .exec(function (err, users) {
+		if (err) {
+			console.log(err);
+		}
+		users.forEach(function(user) {
+			var start = moment().subtract(1, 'days').startOf('day').toDate();
+			var end = moment().subtract(1, 'days').endOf('day').toDate();
+			Done.model.find({
+				"createdBy": user.id,
+				"doneType": 1,
+				"completedOn": {
+					"$gte": start,
+					"$lte": end
+				}
+			})
+			.exec(function (err, dones) {
+				new Email('templates/email/index.pug', { transport: 'mailgun' }).send({
+					username: user.name, 
+					dones: dones
+				}, {
+					from: 'dones@done.joeinn.es',
+					to: user.email,
+					subject: 'What did you get done today?',
+				}, (err) => { 
+					if(err) {
+						console.log(err) 
+					}
+				});
+			});
+		});
+	});
+}
+
+sendMails();

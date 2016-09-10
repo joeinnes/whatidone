@@ -6,10 +6,12 @@
     "async": "^1.5.0",
     "dotenv": "^2.0.0",
     "keystone": "^4.0.0-beta.1",
+    "keystone-email": "^1.0.5",
     "lodash": "^4.13.1",
     "mailin": "^3.0.3",
     "material-datepicker": "0.0.1",
     "moment": "^2.14.1",
+    "pug": "^2.0.0-beta6",
     "semistandard": "^9.0.0"
   },
   "devDependencies": {
